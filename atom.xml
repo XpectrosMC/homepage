@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href='https://xpectros.com/rss.xsl' type="text/xsl"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
+  <title>Xpectros</title>
+  <subtitle>Xpectros Moto Club</subtitle>
+  <link href="https://xpectros.com/atom.xml" rel="self"/>
+  <link href="https://xpectros.com"/>
+  <updated></updated>
+  <id>https://xpectros.com</id>
+  <author>
+    <name>Zero</name>
+    <uri>https://floresbenavides.com</uri>
+  </author>
+</feed>
