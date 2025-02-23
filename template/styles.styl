@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&family=Special+Elite&display=swap')
+
+palPrimary = #0a2757
+palSuccess = #63A375
+palWarning = #EDC79B
+palDanger = #D57A66
+palContrast = #fafafa
+palBackground = #10151D
+
+:root
+  --primary: palPrimary
+  --darkPri: darken(palPrimary, 10)
+  --lightPri: lighten(palPrimary, 10)
+  --success: palSuccess
+  --darkSuc: darken(palSuccess, 10)
+  --lightSuc: lighten(palSuccess, 10)
+  --warning: palWarning
+  --darkWar: darken(palWarning, 10)
+  --lightWar: lighten(palWarning, 10)
+  --danger: palDanger
+  --darkDan: darken(palDanger, 10)
+  --lightDan: lighten(palDanger, 10)
+  --contrast: palContrast
+  --darkCon: darken(palContrast, 10)
+  --lightCon: lighten(palContrast, 10)
+  --background: palBackground
+  --darkBac: darken(palBackground, 10)
+  --lightBac: lighten(palBackground, 10)
+
+body
+
+  background-color: var(--background)
+  color: var(--contrast)
+  font-family: 'Roboto', sans-serif
+  margin: 0
+  padding: 0
+  box-sizing: border-box
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-size 18px
+
+h1, h2, h3
+  font-family: "Special Elite", serif
+  margin: 0
+  padding: 0
+  letter-spacing: 1px
+
+h1
+  font-size: 60px
+h2
+  font-size: 30px
+  color: var(--warning)
+  border-bottom: 1px dashed var(--danger)
+
+a
+  color: var(--success)
+  text-decoration: none
+  &:hover
+    text-decoration: underline
+
+.primary
+  color: var(--primary)
+
+@import "header.styl"
+@import "content.styl"
+@import "footer.styl"
