@@ -96,6 +96,9 @@ header .navigation a:hover {
   margin: 0 auto;
   padding-top: 20px;
 }
+.pageContent img {
+  max-width: 100%;
+}
 .pageContent .head {
   text-align: center;
   margin-bottom: 50px;
