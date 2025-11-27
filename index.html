@@ -31,7 +31,179 @@
       </ul>
     </header>
     <div class="pageContent"><h1>Xpectros</h1>
-<iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=2&ctz=America%2FMexico_City&showPrint=0&showTitle=0&showNav=0&showDate=0&showTabs=0&showCalendars=0&showTz=0&mode=AGENDA&hl=es_419&src=M2FjNWFjYzBlZWFiNDA2MzVlNGI4OGZiZGYzZWJhOTNhOWFmZGQ0YjNjYzFkZDUxYzE2NjE2MWQzOTFjZGIzMkBncm91cC5jYWxlbmRhci5nb29nbGUuY29t&color=%238e24aa" style="border-width:0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+<style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #121212;
+        color: #e0e0e0;
+        font-family: sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      .calendar {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+        width: 100%;
+        box-sizing: border-box;
+        --accent-color: #663cfc;
+      }
+
+      .day {
+        display: flex;
+        padding: 0.75rem;
+        border-radius: 8px;
+        background-color: #1e1e1e;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+        width: 100%;
+      }
+
+      .date {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        width: 50px;
+        color: var(--accent-color);
+      }
+
+      .number {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+
+      .month {
+        font-size: 0.75rem;
+        color: #cccccc;
+        margin-top: 0.2rem;
+      }
+
+      .events {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        flex-grow: 1;
+      }
+
+      .event {
+        background-color: #2c2c2c;
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        color: #ffffff;
+        border-left: 4px solid var(--accent-color);
+      }
+</style>
+<div class="templates" style="display:none;">
+  <div class="event-template event">[name]</div>
+  <div class="day-template day">
+    <div class="date">
+      <div class="number">[day]</div>
+      <div class="month">[month]</div>
+    </div>
+    <div class="events">
+    </div>
+  </div>
+</div>
+<div class="calendar" id="calendar">
+  <!-- Calendar days will be populated here -->
+</div>
+<script>
+  const populateDays = days => {
+    const calendarEl = document.getElementById('calendar')
+    const dayTemplate = document.querySelector('.day-template')
+    const eventTemplate = document.querySelector('.event-template')
+
+<pre><code>Object.keys(days).sort().forEach(dayKey =&gt; {
+  const dayEl = dayTemplate.cloneNode(true)
+  dayEl.classList.remove(&#39;day-template&#39;)
+  dayEl.querySelector(&#39;.number&#39;).textContent = dayKey.slice(8, 10)
+  dayEl.querySelector(&#39;.month&#39;).textContent = new Date(dayKey).toLocaleString(&#39;default&#39;, { month: &#39;short&#39; })
+
+  const eventsContainer = dayEl.querySelector(&#39;.events&#39;)
+  days[dayKey].forEach(event =&gt; {
+    const eventEl = eventTemplate.cloneNode(true)
+    eventEl.classList.remove(&#39;event-template&#39;)
+    let eventText = event.name
+    if (!event.allDay) {
+      eventText += ` (${event.startTime} - ${event.endTime})`
+    }
+    eventEl.textContent = eventText
+    eventsContainer.appendChild(eventEl)
+  })
+
+  calendarEl.appendChild(dayEl)
+})
+</code></pre>
+<p>  }
+  const populateCalendar = element =&gt; {
+    fetch(&#39;<a target="_blank" href="https://n8n.floresbenavides.com/webhook/calendario">https://n8n.floresbenavides.com/webhook/calendario</a>&#39;)
+      .then(response =&gt; response.json())
+      .then(data =&gt; {
+        // data = [
+        // { start: &#39;2025-01-01&#39;, name: &#39;event1&#39; end: &#39;2025-01-02&#39;},
+        // { start: &#39;2025-01-01T19:00:00-06:00&#39;, name: &#39;event2&#39; end: &#39;2025-01-01T22:00:00-06:00&#39;}
+        // ]
+        data.map(event =&gt; {
+          // if event.start contains time, it means its sigle day
+          event.allDay = event.start.length &lt;= 10
+          // if event.allDay, substract 1 day from end date
+          if (event.allDay) {
+            const endDate = new Date(event.end)
+            endDate.setDate(endDate.getDate() - 1)
+            event.end = endDate.toISOString().slice(0, 10)
+          } else {
+            // for single day events set start and end time
+            const startDateTime = new Date(event.start)
+            const endDateTime = new Date(event.end)
+            event.startTime = startDateTime.toLocaleTimeString([], { hour: &#39;2-digit&#39;, minute: &#39;2-digit&#39; })
+            event.endTime = endDateTime.toLocaleTimeString([], { hour: &#39;2-digit&#39;, minute: &#39;2-digit&#39; })
+          }
+          return event
+        })
+        const days = {}
+        data.forEach(event =&gt; {
+          const dayKey = event.start.slice(0, 10)
+          if (!days[dayKey]) {
+            days[dayKey] = []
+          }
+          if (!event.allDay) days[dayKey].push(event)
+          else {
+            const startDate = new Date(event.start)
+            const endDate = new Date(event.end)
+            const timeDiff = endDate.getTime() - startDate.getTime()
+            const dayCount = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1
+            let currentDay = 1
+            for (let d = new Date(startDate); d &lt;= endDate; d.setDate(d.getDate() + 1)) {
+              const evt = Object.assign({}, event)
+              const multiDayKey = d.toISOString().slice(0, 10)
+              if (!days[multiDayKey]) {
+                days[multiDayKey] = []
+              }
+              // if only one day, keep the name
+              evt.name = dayCount === 1 ? evt.name : <code>${evt.name} (día ${currentDay}/${dayCount})</code>
+              days[multiDayKey].push(evt)
+              currentDay++
+            }
+          }
+        })
+        populateDays(days)
+      })
+      .catch(error =&gt; {
+        element.innerHTML = &#39;Error loading calendar data.&#39;
+        console.error(&#39;Error fetching calendar data:&#39;, error)
+      })
+  }
+  document.addEventListener(&#39;DOMContentLoaded&#39;, function() {
+    var calendarEl = document.getElementById(&#39;calendar&#39;)
+    populateCalendar(calendarEl)
+  })
+</script></p>
 </div>
     <footer>Xpectros &middot; 2025</footer>
   </body>
